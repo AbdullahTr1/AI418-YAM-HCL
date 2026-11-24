@@ -1,0 +1,557 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><style>[hidden]{display:none!important}</style>
+<title>CampusLend</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Sans+Arabic:wght@400;500;600;700&display=swap">
+<style>
+/* Layout: one phone-width app column, centered; facilitator tools sit below it and only appear at #facilitator */
+:root{
+  --bg:#E9F0EE; --surface:#FFFFFF; --surface2:#F3F8F6; --ink:#10201D; --muted:#4A5C58; --line:#C5D4CF;
+  --brand:#0B6B5F; --brand-ink:#FFFFFF; --brand-soft:#D9EFE9;
+  --ai:#FCEBCB; --ai-ink:#4F3200; --ai-line:#D9A23A;
+  --danger:#B3261E; --danger-soft:#FBE4E1; --ok:#17622F; --ok-soft:#DCF2E3; --focus:#1D4ED8;
+  --font:"IBM Plex Sans","IBM Plex Sans Arabic",system-ui,-apple-system,"Segoe UI",Tahoma,sans-serif;
+  color-scheme:light;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#0A1311; --surface:#14231F; --surface2:#101C19; --ink:#E7F1EE; --muted:#A5B8B3; --line:#2D423C;
+  --brand:#4FD1BD; --brand-ink:#04211C; --brand-soft:#17382F; --ai:#3A2D10; --ai-ink:#FBE3B0; --ai-line:#8A6A22;
+  --danger:#FF8A80; --danger-soft:#3B1B18; --ok:#7BDB9A; --ok-soft:#173424; --focus:#8AB4FF; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#0A1311; --surface:#14231F; --surface2:#101C19; --ink:#E7F1EE; --muted:#A5B8B3; --line:#2D423C;
+  --brand:#4FD1BD; --brand-ink:#04211C; --brand-soft:#17382F; --ai:#3A2D10; --ai-ink:#FBE3B0; --ai-line:#8A6A22;
+  --danger:#FF8A80; --danger-soft:#3B1B18; --ok:#7BDB9A; --ok-soft:#173424; --focus:#8AB4FF; color-scheme:dark}
+*{box-sizing:border-box}
+html,body{margin:0}
+body{background:var(--bg);color:var(--ink);font-family:var(--font);font-size:16px;line-height:1.45;
+  padding-left:env(safe-area-inset-left,0px);padding-right:env(safe-area-inset-right,0px)}
+button,input{font:inherit;color:inherit}
+:focus-visible{outline:3px solid var(--focus);outline-offset:2px}
+h1[tabindex]:focus-visible,main:focus-visible{outline:0}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+.wrap{max-width:430px;margin:0 auto;min-height:100vh;min-height:100dvh;display:flex;flex-direction:column;background:var(--surface2);position:relative}
+@media(min-width:600px){.wrap{margin:20px auto;min-height:820px;border:1px solid var(--line);border-radius:28px;overflow:hidden;box-shadow:0 12px 40px rgba(8,40,34,.14)}}
+header.top{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:12px 16px;background:var(--surface);border-bottom:1px solid var(--line)}
+.brand{display:flex;align-items:center;gap:10px;min-width:0}
+.logo{width:34px;height:34px;border-radius:10px;background:var(--brand);color:var(--brand-ink);display:grid;place-items:center;flex:none}
+.brand b{display:block;font-size:17px;line-height:1.1}
+.brand small{display:block;color:var(--muted);font-size:12px}
+.tools{display:flex;gap:8px;align-items:center}
+.seg{display:inline-flex;border:1px solid var(--line);border-radius:10px;overflow:hidden}
+.seg button{border:0;background:var(--surface);padding:8px 12px;min-height:40px;cursor:pointer;font-weight:600}
+.seg button[aria-pressed="true"]{background:var(--brand);color:var(--brand-ink)}
+.iconbtn{min-width:40px;min-height:40px;border:1px solid var(--line);border-radius:10px;background:var(--surface);display:grid;place-items:center;cursor:pointer}
+main{flex:1;padding:16px 16px 24px;display:flex;flex-direction:column;gap:14px;outline:0}
+h1{font-size:26px;line-height:1.2;margin:0;outline:0}
+h2{font-size:17px;margin:0;line-height:1.25}
+p{margin:0}
+.sub{color:var(--muted)}
+.small{font-size:13px}
+.stepper{display:flex;gap:6px;list-style:none;margin:0;padding:0;flex-wrap:wrap}
+.stepper li{border:1px solid var(--line);background:var(--surface);color:var(--muted);border-radius:99px;padding:4px 11px;font-size:13px}
+.stepper li[aria-current="step"]{background:var(--brand);border-color:var(--brand);color:var(--brand-ink);font-weight:600}
+.stepper li.done{color:var(--ink)}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:14px;display:flex;flex-direction:column;gap:10px}
+.card.sug{border-color:var(--ai-line);box-shadow:0 0 0 1px var(--ai-line) inset}
+.card.dim{opacity:.85}
+.row{display:flex;gap:10px;align-items:center}
+.row.sp{justify-content:space-between}
+.glyph{width:46px;height:46px;border-radius:12px;background:var(--brand-soft);color:var(--brand);display:grid;place-items:center;flex:none}
+.grow{flex:1;min-width:0}
+.meta{color:var(--muted);font-size:14px}
+.chip{display:inline-flex;align-items:center;gap:5px;border-radius:99px;padding:3px 10px;font-size:13px;font-weight:600;border:1px solid transparent}
+.ok{background:var(--ok-soft);color:var(--ok)}
+.no{background:var(--surface2);color:var(--muted);border-color:var(--line)}
+.pend{background:var(--ai);color:var(--ai-ink);border-color:var(--ai-line)}
+.canc{background:var(--danger-soft);color:var(--danger)}
+.aitag{background:var(--ai);color:var(--ai-ink);border-color:var(--ai-line)}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:48px;padding:10px 16px;border-radius:12px;border:2px solid var(--brand);background:var(--brand);color:var(--brand-ink);font-weight:600;cursor:pointer;text-align:center}
+.btn.sec{background:var(--surface);color:var(--brand)}
+.btn.danger{background:var(--danger);border-color:var(--danger);color:#fff}
+:root[data-theme="dark"] .btn.danger{color:#2B0A07}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]) .btn.danger{color:#2B0A07}}
+.btn.sm{min-height:40px;padding:6px 12px;font-size:14px}
+.btn[disabled]{opacity:.5;cursor:not-allowed}
+.link{background:none;border:0;color:var(--brand);text-decoration:underline;cursor:pointer;padding:8px 0;min-height:40px;text-align:start;font-weight:500}
+.chips{display:flex;gap:8px;flex-wrap:wrap}
+.chips button{border:1px solid var(--line);background:var(--surface);border-radius:99px;padding:8px 14px;min-height:40px;cursor:pointer}
+.chips button[aria-pressed="true"]{background:var(--brand-soft);border-color:var(--brand);color:var(--brand);font-weight:600}
+label{font-weight:600;font-size:14px;display:block;margin-bottom:4px}
+input[type=text],input[type=search],input[type=email],input[type=date],input[type=time]{width:100%;min-height:48px;border:1.5px solid #6C807A;border-radius:12px;padding:8px 12px;background:var(--surface);color:var(--ink)}
+input[type=date],input[type=time]{min-width:0;max-width:100%}
+input[aria-invalid="true"]{border-color:var(--danger);border-width:2px}
+.err{color:var(--danger);font-size:14px;font-weight:500;display:flex;gap:6px;margin-top:6px}
+.alert{border-radius:12px;padding:12px;border:1.5px solid var(--danger);background:var(--danger-soft);display:flex;gap:10px}
+.note{border-inline-start:4px solid var(--brand);background:var(--surface);border-radius:8px;padding:10px 12px;font-size:14px}
+.kv{display:grid;grid-template-columns:1fr;gap:2px;padding-block:8px;border-top:1px solid var(--line)}
+.kv:first-of-type{border-top:0}
+.kv dt{font-size:12px;letter-spacing:.04em;text-transform:uppercase;color:var(--muted)}
+[dir=rtl] .kv dt{letter-spacing:0;text-transform:none;font-size:13px}
+.kv dd{margin:0;font-weight:500}
+dl{margin:0}
+.grid2{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+.ai-box{background:var(--ai);color:var(--ai-ink);border:1px solid var(--ai-line);border-radius:14px;padding:10px 12px;display:flex;flex-direction:column;gap:6px}
+.ai-box .link{color:var(--ai-ink)}
+.switch{display:inline-flex;align-items:center;gap:8px;border:0;background:none;cursor:pointer;color:inherit;min-height:40px;font-weight:600}
+.switch i{width:44px;height:26px;border-radius:99px;background:#6C807A;position:relative;display:inline-block;flex:none}
+.switch i::after{content:"";position:absolute;top:3px;inset-inline-start:3px;width:20px;height:20px;border-radius:50%;background:#fff;transition:inset-inline-start .15s}
+.switch[aria-checked="true"] i{background:var(--brand)}
+.switch[aria-checked="true"] i::after{inset-inline-start:21px}
+nav.tabs{position:sticky;bottom:0;display:grid;grid-template-columns:repeat(3,1fr);gap:8px;padding:10px 12px calc(10px + env(safe-area-inset-bottom,0px));background:var(--surface);border-top:1px solid var(--line)}
+nav.tabs button{display:flex;flex-direction:column;align-items:center;gap:2px;border:0;background:none;padding:6px 4px;min-height:52px;border-radius:12px;cursor:pointer;color:var(--muted);font-size:13px;font-weight:600;position:relative}
+nav.tabs button[aria-current="page"]{color:var(--brand);background:var(--brand-soft)}
+nav.tabs .mic{color:var(--ai-ink);background:var(--ai);border:1px solid var(--ai-line)}
+.badge{position:absolute;top:2px;inset-inline-end:22%;background:var(--brand);color:var(--brand-ink);border-radius:99px;font-size:11px;padding:0 6px;min-width:18px}
+.toast{position:fixed;inset-inline:0;bottom:calc(84px + env(safe-area-inset-bottom,0px));display:flex;justify-content:center;pointer-events:none;z-index:30;padding-inline:16px}
+.toast>div{pointer-events:auto;background:#10201D;color:#fff;border-radius:12px;padding:10px 14px;display:flex;gap:12px;align-items:center;max-width:398px;box-shadow:0 6px 20px rgba(0,0,0,.3)}
+.toast button{background:none;border:0;color:#9FE6D8;font-weight:700;text-decoration:underline;cursor:pointer;min-height:36px}
+.scrim{position:fixed;inset-inline:0;top:var(--viewport-top,0px);height:100vh;height:var(--viewport-height,100dvh);
+  background:rgba(5,20,17,.55);z-index:20;display:flex;align-items:flex-end;justify-content:center;
+  padding-left:env(safe-area-inset-left,0px);padding-right:env(safe-area-inset-right,0px);
+  padding-top:env(safe-area-inset-top,0px)}
+.scrim:has(.sheet.center){align-items:center}
+.sheet{background:var(--surface);width:100%;max-width:430px;min-width:0;border-radius:20px 20px 0 0;padding:16px 16px calc(16px + env(safe-area-inset-bottom,0px));display:flex;flex-direction:column;gap:12px;max-height:100%;overflow:auto;overscroll-behavior:contain}
+.sheet.center{border-radius:20px;margin:16px}
+.log{display:flex;flex-direction:column;gap:8px;max-height:240px;overflow:auto}
+.msg{padding:8px 12px;border-radius:14px;max-width:92%;overflow-wrap:anywhere}
+.msg.me{align-self:flex-end;background:var(--brand);color:var(--brand-ink)}
+.msg.bot{align-self:flex-start;background:var(--surface2);border:1px solid var(--line)}
+.msg .row{margin-top:8px;flex-wrap:wrap}
+.mic-big{width:72px;height:72px;border-radius:50%;border:3px solid var(--ai-line);background:var(--ai);color:var(--ai-ink);display:grid;place-items:center;cursor:pointer;flex:none}
+.mic-big[aria-pressed="true"]{background:var(--danger);color:#fff;border-color:var(--danger);animation:pulse 1.2s infinite}
+@keyframes pulse{50%{box-shadow:0 0 0 10px rgba(179,38,30,.2)}}
+@media(prefers-reduced-motion:reduce){.mic-big[aria-pressed="true"]{animation:none}.switch i::after{transition:none}}
+[dir=rtl] .flip{transform:scaleX(-1)}
+#fac{max-width:430px;margin:12px auto 40px;padding:0 16px}
+#fac .card{gap:12px}
+details summary{cursor:pointer;font-weight:600;min-height:40px;display:flex;align-items:center}
+@media(max-width:599px){
+  .wrap{max-width:none}
+  header.top{padding-top:calc(12px + env(safe-area-inset-top,0px))}
+  .seg button,.iconbtn,.btn.sm,.chips button,.link,.switch,details summary{min-height:44px}
+  input{font-size:16px}
+  input[type=search]{min-width:0}
+  .sheet .log{max-height:min(240px,30dvh)}
+}
+@media(max-width:360px){
+  header.top,main{padding-inline:12px}
+  .tools{gap:4px}
+  .tools .seg button{padding-inline:8px}
+  .grid2{grid-template-columns:minmax(0,1fr)}
+}
+</style>
+
+<div class="wrap" id="wrap">
+  <header class="top" id="top"></header>
+  <main id="main" tabindex="-1"></main>
+  <nav class="tabs" id="tabs" hidden></nav>
+  <div id="overlay"></div>
+</div>
+<div class="toast" aria-live="polite" role="status" id="toast"></div>
+<div id="fac" hidden></div>
+
+<script>
+"use strict";
+/* ---------- data ---------- */
+const ITEMS=[
+ {id:1,cat:"sbc",en:"Raspberry Pi 4 (4 GB)",ar:"راسبيري باي 4 (٤ جيجا)",lender:["Sara","سارة"],place:["Labs building · Gate 2","مبنى المختبرات · البوابة ٢"],cond:["Good; power cable included","جيدة، مع كابل الطاقة"],max:7,avail:true,campus:true},
+ {id:2,cat:"sbc",en:"Raspberry Pi 4 (4 GB)",ar:"راسبيري باي 4 (٤ جيجا)",lender:["Nora","نورة"],place:["Engineering building","مبنى الهندسة"],cond:["Good","جيدة"],max:7,avail:false,campus:true},
+ {id:3,cat:"sbc",en:"Raspberry Pi 4 (2 GB)",ar:"راسبيري باي 4 (٢ جيجا)",lender:["Ali","علي"],place:["Labs building · Gate 1","مبنى المختبرات · البوابة ١"],cond:["Good; case included","جيدة، مع علبة"],max:7,avail:true,campus:true},
+ {id:4,cat:"sbc",en:"Raspberry Pi 3 B+",ar:"راسبيري باي 3 B+",lender:["Huda","هدى"],place:["Engineering building","مبنى الهندسة"],cond:["Fair; SD card included","مقبولة، مع بطاقة SD"],max:7,avail:true,campus:true},
+ {id:5,cat:"sbc",en:"Raspberry Pi 4 (4 GB)",ar:"راسبيري باي 4 (٤ جيجا)",lender:["Mona","منى"],place:["Library entrance","مدخل المكتبة"],cond:["Very good","جيدة جدًا"],max:7,avail:true,campus:true},
+ {id:6,cat:"mcu",en:"Arduino Uno R3 + USB",ar:"أردوينو أونو R3 + كابل USB",lender:["Omar","عمر"],place:["Labs building · Gate 1","مبنى المختبرات · البوابة ١"],cond:["Good; USB cable included","جيدة، مع كابل USB"],max:7,avail:true,campus:true},
+ {id:7,cat:"mcu",en:"ESP32 Starter Kit",ar:"طقم ESP32 للمبتدئين",lender:["Rana","رنا"],place:["University neighbourhood","حي الجامعة"],cond:["Good; jumper wires included","جيدة، مع أسلاك توصيل"],max:5,avail:true,campus:false},
+ {id:8,cat:"test",en:"Digital multimeter",ar:"جهاز قياس متعدد رقمي",lender:["Faisal","فيصل"],place:["Engineering building","مبنى الهندسة"],cond:["Good; probes included","جيدة، مع المجسّات"],max:3,avail:true,campus:true},
+ {id:9,cat:"test",en:"Soldering iron kit",ar:"طقم مكواة لحام",lender:["Khalid","خالد"],place:["Labs building · Gate 2","مبنى المختبرات · البوابة ٢"],cond:["Good; stand included","جيدة، مع حامل"],max:3,avail:true,campus:true}
+];
+const CATNAME={sbc:["Raspberry Pi tools","أدوات راسبيري باي"],mcu:["microcontroller kits","عُدد المتحكمات الدقيقة"],test:["test and solder tools","أدوات القياس واللحام"]};
+const TERMS=[
+ ["Raspberry Pi",["raspberry","rpi","راسبيري","رازبيري","راسبري","باي"],"sbc"],
+ ["Arduino",["arduino","اردوينو","ارديونو"],"mcu"],
+ ["ESP32",["esp32","ايسب"],"mcu"],
+ ["multimeter",["multimeter","meter","مقياس","ملتي"],"test"],
+ ["solder",["solder","soldering","لحام","مكواه"],"test"]
+];
+
+/* ---------- strings ---------- */
+const T={
+en:{brandTag:"Borrow tools from students",home:"Home",reqs:"My Requests",ask:"Ask",signout:"Sign out",lang:"Language",
+ s0h:"Welcome to CampusLend",s0p:"Borrow Arduino, Raspberry Pi and lab equipment from other students.",login:"Log in",signup:"Sign up",email:"University email",enter:"Enter CampusLend",demo:"Continue as demo student",demoNote:"Demo only. No password is asked or checked.",emailErr:"Enter your university email, or continue as demo student.",
+ s1h:"Browse tools",s1p:"Find the equipment you need. Each request needs lender approval.",search:"Search tools",ph:"Raspberry Pi, Arduino, ESP32…",go:"Search",fAvail:"Available now",fCampus:"On campus",shown:n=>`${n} tool${n==1?"":"s"} shown`,clear:"Clear filters",none:"No tools match. Clear the filters or try another word.",
+ avail:"Available",unavail:"Unavailable",lender:"Lender",cond:"Condition",pick:"Pick-up place",max:"Maximum borrowing period",days:n=>`${n} day${n==1?"":"s"}`,view:"View details",
+ ordered:"Personalised order",on:"On",off:"Off",why:"Why this order?",whyHide:"Hide explanation",cold:"Not enough activity yet to personalise. Showing available tools first.",warm:n=>`Ordered by what you viewed and searched (${n} activities).`,
+ whyTxt:(c,n,course)=>`Suggested because you looked at ${c} (${n} activities)${course?` and you study ${course}`:""}. Tools you mark “Not relevant” move down. Turn personalisation off for the plain order.`,
+ sugg:"Suggested for you",notRel:"Not relevant",gotIt:"Got it. Showing fewer like this.",undo:"Undo",undone:"Undone.",
+ s2h:"Tool details",s2p:"Check the tool before borrowing",chooseDates:"Choose borrowing dates",back:"Back to tools",saved:"Your dates are saved",keepDates:"Continue with saved dates",changeDates:"Change dates",tooLong:m=>`Your saved dates are longer than this tool's ${m}-day limit. Choose new dates.`,unavNote:"This tool is not available right now. Go back and choose another.",
+ s3h:"Select Borrowing Dates",s3p:"Pick a convenient pick-up date, return date and time.",d1:"Pick-up date",d2:"Return date",tm:"Pick-up time",review:"Review Request",toDetails:"Tool details",
+ eBoth:"Choose both dates.",eTime:"Choose a pick-up time.",ePast:"Pick-up can't be in the past. Choose today or a later date.",eOrder:"Return date must be on or after the pick-up date.",eLong:(m,d)=>`This tool can be borrowed for up to ${m} days. Choose a return date on or before ${d}.`,
+ s4h:"Review Request",s4p:"Review before sending",pu:"Pick-up date",rt:"Return date",cal:"Display calendar",greg:"Gregorian",hijri:"Hijri",calNote:"Calendar format changes only how dates appear, not the days you selected.",confirm:"Confirm and send request",chg:"Change dates (saved)",notApproved:"The lender has not approved the loan yet.",
+ s5h:"Request Sent",sentBanner:"Your request was sent. Waiting for lender approval.",waiting:"Waiting for lender approval",simNote:"This is a simulated request. No real student will be contacted.",viewReq:"View My Requests",another:"Borrow another tool",
+ s6h:"My Requests",s6p:"Your borrowing requests",cancelReq:"Cancel request",empty:"You have no requests yet.",hist:"Cancelled requests stay visible in your history.",cancelled:"Cancelled",
+ dlgH:"Cancel this request?",dlgP:"The lender will be told. You can undo for a few seconds.",keep:"Keep request",yesCancel:"Yes, cancel request",toastCancel:id=>`${id} cancelled.`,
+ eh:"Tool no longer available",eAlert:"Another student borrowed this tool while you were reviewing. Choose an available alternative; your dates stay saved.",eSel:"Selected tool",alts:"Alternative tools",pickAlt:"Choose this one",notify:"Notify me when it becomes available (demo)",notifyT:"Demo only: no notification will be sent.",browse:"Browse tools",
+ step:["Tool","Dates","Review","Sent"],stepL:"Borrowing steps",
+ vH:"Ask CampusLend",vSub:"Say or type what you want to do.",vStart:"Start listening",vStop:"Stop listening",vListening:"Listening…",vType:"Or type it",vSend:"Send",vMic:"Microphone",vClose:"Close",vExamples:"What can I say?",
+ vEx:["Find Raspberry Pi","Show my requests","Cancel my request","Go home"],yes:"Yes",no:"No",
+ vHello:"Hi. Tell me what you want to do.",vNone:"Sorry, I didn't understand. Try one of the examples, or type it.",vDid:l=>`Did you mean: “${l}”?`,vHeard:t=>`I'm not sure I heard that right. Did you say “${t}”?`,vAgain:"Okay. Say it again or type it.",
+ vNoPend:"You have no pending requests to cancel.",vWhich:"Which request do you want to cancel?",vCQ:(id,n)=>`Cancel ${id} · ${n}?`,vKept:"Okay, I kept the request.",vDone:id=>`Done. ${id} is now cancelled.`,vFound:(n,q)=>`Showing ${n} tool${n==1?"":"s"} for “${q}”.`,vOpened:"Opened My Requests.",vHome:"Back on Home.",
+ noVoice:"Voice isn't available in this browser. Type your request instead.",noSpeech:"I didn't hear anything. Try again or type it.",micDenied:"Microphone is blocked. Type your request instead.",micFail:"Voice didn't work. Type your request instead.",micOff:"Microphone is off. Type your request instead.",
+ reqLabel:"Request"},
+ar:{brandTag:"استعر الأدوات من زملائك",home:"الرئيسية",reqs:"طلباتي",ask:"اسأل",signout:"تسجيل الخروج",lang:"اللغة",
+ s0h:"مرحبًا بك في كامبس ليند",s0p:"استعر أردوينو وراسبيري باي ومعدات المختبر من طلاب آخرين.",login:"تسجيل الدخول",signup:"إنشاء حساب",email:"البريد الجامعي",enter:"دخول كامبس ليند",demo:"المتابعة كطالب تجريبي",demoNote:"نسخة تجريبية فقط. لا تُطلب كلمة مرور ولا يتم التحقق منها.",emailErr:"أدخل بريدك الجامعي، أو تابع كطالب تجريبي.",
+ s1h:"تصفّح الأدوات",s1p:"ابحث عن المعدات التي تحتاجها. كل طلب يحتاج إلى موافقة المُعير.",search:"ابحث عن أداة",ph:"راسبيري باي، أردوينو، ESP32…",go:"بحث",fAvail:"متاحة الآن",fCampus:"داخل الجامعة",shown:n=>`${N(n)} ${n==1?"أداة معروضة":n==2?"أداتان معروضتان":n<=10?"أدوات معروضة":"أداة معروضة"}`,clear:"مسح التصفية",none:"لا توجد أدوات مطابقة. امسح التصفية أو جرّب كلمة أخرى.",
+ avail:"متاحة",unavail:"غير متاحة",lender:"المُعير",cond:"الحالة",pick:"مكان الاستلام",max:"أقصى مدة للاستعارة",days:n=>n==1?"يوم واحد":n==2?"يومان":`${N(n)} ${n<=10?"أيام":"يومًا"}`,view:"عرض التفاصيل",
+ ordered:"ترتيب مخصص",on:"مفعّل",off:"متوقف",why:"لماذا هذا الترتيب؟",whyHide:"إخفاء الشرح",cold:"لا يوجد نشاط كافٍ للتخصيص بعد. تظهر الأدوات المتاحة أولًا.",warm:n=>`الترتيب حسب ما شاهدته وبحثت عنه (${N(n)} نشاطات).`,
+ whyTxt:(c,n,course)=>`اقتُرحت لأنك تصفحت ${c} (${N(n)} نشاطات)${course?` وتدرس ${course}`:""}. الأدوات التي تحدد أنها «غير مناسبة» تنزل للأسفل. أوقف التخصيص لعرض الترتيب العادي.`,
+ sugg:"مقترحة لك",notRel:"غير مناسبة",gotIt:"تم. سنعرض أقل من هذا النوع.",undo:"تراجع",undone:"تم التراجع.",
+ s2h:"تفاصيل الأداة",s2p:"راجع الأداة قبل الاستعارة",chooseDates:"اختر مواعيد الاستعارة",back:"العودة إلى الأدوات",saved:"مواعيدك محفوظة",keepDates:"المتابعة بالمواعيد المحفوظة",changeDates:"تغيير المواعيد",tooLong:m=>`مواعيدك المحفوظة أطول من حد هذه الأداة (${N(m)} أيام). اختر مواعيد جديدة.`,unavNote:"هذه الأداة غير متاحة الآن. ارجع واختر أداة أخرى.",
+ s3h:"اختيار مواعيد الاستعارة",s3p:"اختر موعد استلام وإرجاع ووقتًا مناسبًا.",d1:"تاريخ الاستلام",d2:"تاريخ الإرجاع",tm:"وقت الاستلام",review:"مراجعة الطلب",toDetails:"تفاصيل الأداة",
+ eBoth:"اختر التاريخين.",eTime:"اختر وقت الاستلام.",ePast:"لا يمكن أن يكون الاستلام في الماضي. اختر اليوم أو تاريخًا لاحقًا.",eOrder:"يجب أن يكون الإرجاع في يوم الاستلام أو بعده.",eLong:(m,d)=>`يمكن استعارة هذه الأداة حتى ${N(m)} أيام. اختر تاريخ إرجاع لا يتجاوز ${d}.`,
+ s4h:"مراجعة الطلب",s4p:"راجع البيانات قبل الإرسال",pu:"تاريخ الاستلام",rt:"تاريخ الإرجاع",cal:"طريقة عرض التاريخ",greg:"ميلادي",hijri:"هجري",calNote:"يتغير شكل عرض التاريخ فقط، ولا تتغير الأيام التي اخترتها.",confirm:"تأكيد وإرسال الطلب",chg:"تعديل المواعيد (محفوظة)",notApproved:"لم تتم الموافقة على الاستعارة بعد.",
+ s5h:"تم إرسال الطلب",sentBanner:"تم إرسال طلبك. بانتظار موافقة المُعير.",waiting:"بانتظار موافقة المُعير",simNote:"هذا طلب تجريبي. لن يتم التواصل مع أي طالب حقيقي.",viewReq:"عرض طلباتي",another:"استعارة أداة أخرى",
+ s6h:"طلباتي",s6p:"طلبات الاستعارة الخاصة بك",cancelReq:"إلغاء الطلب",empty:"ليس لديك طلبات بعد.",hist:"تبقى الطلبات الملغاة ظاهرة في سجلك.",cancelled:"ملغى",
+ dlgH:"إلغاء هذا الطلب؟",dlgP:"سيتم إبلاغ المُعير. يمكنك التراجع خلال ثوانٍ.",keep:"الاحتفاظ بالطلب",yesCancel:"نعم، ألغِ الطلب",toastCancel:id=>`تم إلغاء ${id}.`,
+ eh:"الأداة غير متاحة",eAlert:"استعار طالب آخر هذه الأداة أثناء مراجعتك. اختر بديلًا متاحًا؛ مواعيدك محفوظة.",eSel:"الأداة المختارة",alts:"الأدوات البديلة",pickAlt:"اختيار هذا البديل",notify:"أخبرني عند توفرها (تجريبي)",notifyT:"تجريبي فقط: لن يتم إرسال أي إشعار.",browse:"تصفّح الأدوات",
+ step:["الأداة","المواعيد","المراجعة","الإرسال"],stepL:"خطوات الاستعارة",
+ vH:"اسأل كامبس ليند",vSub:"قل أو اكتب ما تريد فعله.",vStart:"ابدأ الاستماع",vStop:"إيقاف الاستماع",vListening:"جارٍ الاستماع…",vType:"أو اكتب طلبك",vSend:"إرسال",vMic:"الميكروفون",vClose:"إغلاق",vExamples:"ماذا يمكنني أن أقول؟",
+ vEx:["ابحث عن راسبيري باي","اعرض طلباتي","ألغِ طلبي","ارجع للرئيسية"],yes:"نعم",no:"لا",
+ vHello:"أهلًا. قل لي ماذا تريد أن تفعل.",vNone:"عذرًا، لم أفهم. جرّب أحد الأمثلة أو اكتب طلبك.",vDid:l=>`هل تقصد: «${l}»؟`,vHeard:t=>`لست متأكدًا أنني سمعت جيدًا. هل قلت «${t}»؟`,vAgain:"حسنًا. قلها مرة أخرى أو اكتبها.",
+ vNoPend:"ليس لديك طلبات معلّقة لإلغائها.",vWhich:"أي طلب تريد إلغاءه؟",vCQ:(id,n)=>`هل تريد إلغاء ${id} · ${n}؟`,vKept:"حسنًا، أبقيت الطلب.",vDone:id=>`تم. أصبح ${id} ملغى.`,vFound:(n,q)=>`عرض ${N(n)} من الأدوات لـ «${q}».`,vOpened:"تم فتح طلباتي.",vHome:"عدنا إلى الرئيسية.",
+ noVoice:"الصوت غير متاح في هذا المتصفح. اكتب طلبك بدلًا من ذلك.",noSpeech:"لم أسمع شيئًا. حاول مرة أخرى أو اكتب طلبك.",micDenied:"الميكروفون محظور. اكتب طلبك بدلًا من ذلك.",micFail:"لم يعمل الصوت. اكتب طلبك بدلًا من ذلك.",micOff:"الميكروفون متوقف. اكتب طلبك بدلًا من ذلك.",
+ reqLabel:"الطلب"}
+};
+
+/* ---------- helpers ---------- */
+const $=s=>document.querySelector(s);
+const esc=s=>String(s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+let LANG="en";
+const isAr=()=>LANG==="ar";
+function N(n){return new Intl.NumberFormat(isAr()?"ar-SA-u-nu-arab":"en-GB").format(n)}
+const L=()=>T[LANG];
+const iso=d=>`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,"0")}-${String(d.getDate()).padStart(2,"0")}`;
+const todayISO=()=>iso(new Date());
+const addDays=(s,n)=>{const d=new Date(s+"T12:00:00");d.setDate(d.getDate()+n);return iso(d)};
+const diff=(a,b)=>Math.round((new Date(b+"T12:00:00")-new Date(a+"T12:00:00"))/864e5);
+function fmtDate(s,cal){const loc=isAr()?`ar-SA-u-ca-${cal==="hijri"?"islamic-umalqura":"gregory"}-nu-arab`:`en-GB-u-ca-${cal==="hijri"?"islamic-umalqura":"gregory"}`;
+  return new Intl.DateTimeFormat(loc,{weekday:"short",day:"numeric",month:"short",year:"numeric"}).format(new Date(s+"T12:00:00"))}
+function fmtTime(t){return new Intl.DateTimeFormat(isAr()?"ar-SA-u-nu-arab":"en-GB",{hour:"numeric",minute:"2-digit",hour12:true}).format(new Date("2000-01-01T"+t+":00"))}
+const nm=i=>i[isAr()?"ar":"en"];
+const pick=a=>a[isAr()?1:0];
+const byId=id=>ITEMS.find(i=>i.id===id);
+const ico={
+ search:'<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg>',
+ home:'<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><path d="M3 11l9-7 9 7v9a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1z"/></svg>',
+ list:'<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M8 6h13M8 12h13M8 18h13M3.5 6h.01M3.5 12h.01M3.5 18h.01"/></svg>',
+ mic:'<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="9" y="3" width="6" height="12" rx="3"/><path d="M5 11a7 7 0 0 0 14 0M12 18v3"/></svg>',
+ out:'<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="flip"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4M16 17l5-5-5-5M21 12H9"/></svg>',
+ ok:'<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"><path d="M5 12l5 5 9-10"/></svg>',
+ x:'<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg>',
+ warn:'<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex:none"><path d="M12 3l10 18H2z"/><path d="M12 10v5M12 18h.01"/></svg>',
+ spark:'<svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l2.4 6.6L21 11l-6.6 2.4L12 20l-2.4-6.6L3 11l6.6-2.4z"/></svg>',
+ clock:'<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>',
+ sbc:'<svg width="28" height="28" viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="6" width="26" height="20" rx="3"/><rect x="11" y="11" width="10" height="10" rx="1.5" fill="currentColor" fill-opacity=".25"/><path d="M7 10h.01M7 22h.01M25 10h.01M25 22h.01" stroke-linecap="round" stroke-width="3"/></svg>',
+ mcu:'<svg width="28" height="28" viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="8" y="8" width="16" height="16" rx="2" fill="currentColor" fill-opacity=".25"/><path d="M12 4v4M16 4v4M20 4v4M12 24v4M16 24v4M20 24v4M4 12h4M4 16h4M4 20h4M24 12h4M24 16h4M24 20h4"/></svg>',
+ test:'<svg width="28" height="28" viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="7" y="3" width="18" height="26" rx="3"/><rect x="11" y="7" width="10" height="6" rx="1" fill="currentColor" fill-opacity=".25"/><circle cx="16" cy="21" r="3.5"/></svg>'
+};
+
+/* ---------- state ---------- */
+let S;
+function fresh(){return {screen:"S0",tab:"login",user:null,interest:{sbc:0,mcu:0,test:0},events:0,dismissed:new Set(),personalize:true,showWhy:false,q:"",fAvail:false,fCampus:false,
+ sel:null,dates:null,cal:"greg",requests:[],seq:0,armE1:false,recovery:false,e1Item:null,errs:{},emailErr:false,dlg:null,voice:false,log:[],pending:null,micOn:true,listening:false,toast:null}}
+S=fresh();
+function seedDemo(){S.user="demo";S.interest={sbc:3,mcu:2,test:0};S.events=3}
+function defaultDates(){const t=addDays(todayISO(),1);return {start:t,end:addDays(t,2),time:"12:30"}}
+
+/* ---------- ranking (adaptive layer) ---------- */
+function matchesQ(i,q){if(!q)return true;const h=norm(`${i.en} ${i.ar} ${i.lender[0]} ${i.lender[1]} ${CATNAME[i.cat][0]}`);return norm(q).split(" ").filter(Boolean).every(w=>h.includes(w))}
+function ranked(){
+  let list=ITEMS.filter(i=>matchesQ(i,S.q)&&(!S.fAvail||i.avail)&&(!S.fCampus||i.campus));
+  const warm=S.personalize&&S.events>=3;
+  const score=i=>(i.avail?100:0)+(warm?S.interest[i.cat]*10-(S.dismissed.has(i.id)?15:0):0);
+  list=list.map((i,k)=>({i,k,s:score(i)})).sort((a,b)=>b.s-a.s||a.k-b.k);
+  let n=0;const sug=new Set();
+  if(warm)for(const r of list){if(r.i.avail&&S.interest[r.i.cat]>0&&!S.dismissed.has(r.i.id)&&n<3){sug.add(r.i.id);n++}}
+  return {list:list.map(r=>r.i),sug,warm};
+}
+function topCat(){return Object.entries(S.interest).sort((a,b)=>b[1]-a[1])[0][0]}
+function learn(cat,w){S.interest[cat]=(S.interest[cat]||0)+w;S.events++}
+function recordSearch(q){const nq=norm(q);for(const [t,ws,c] of TERMS){if(ws.some(w=>nq.includes(norm(w)))){learn(c,1);return}}}
+
+/* ---------- navigation / render ---------- */
+function go(screen,opts={}){S.screen=screen;S.errs={};render(opts)}
+function render(opts={}){
+  const l=L();
+  document.documentElement.lang=LANG;document.documentElement.dir=isAr()?"rtl":"ltr";
+  document.title=isAr()?"كامبس ليند":"CampusLend";
+  $("#top").innerHTML=`<div class="brand"><span class="logo" aria-hidden="true">${ico.sbc.replace('width="28" height="28"','width="22" height="22"')}</span><div><b>${isAr()?"كامبس ليند":"CampusLend"}</b><small>${l.brandTag}</small></div></div>
+   <div class="tools"><div class="seg" role="group" aria-label="${l.lang}"><button data-act="lang" data-v="en" aria-pressed="${!isAr()}" lang="en">EN</button><button data-act="lang" data-v="ar" aria-pressed="${isAr()}" lang="ar">عربي</button></div>
+   ${S.user?`<button class="iconbtn" data-act="signout" aria-label="${l.signout}" title="${l.signout}">${ico.out}</button>`:""}</div>`;
+  const R=SCREENS[S.screen]();
+  $("#main").innerHTML=R;
+  const tabs=$("#tabs");tabs.hidden=!S.user;
+  if(S.user){const np=S.requests.filter(r=>r.status==="pending").length;
+   tabs.innerHTML=`<button data-act="nav" data-v="S1" ${S.screen==="S1"?'aria-current="page"':""}>${ico.home}<span>${l.home}</span></button>
+   <button data-act="nav" data-v="S6" ${S.screen==="S6"?'aria-current="page"':""}>${ico.list}<span>${l.reqs}</span>${np?`<span class="badge" aria-label="${N(np)}">${N(np)}</span>`:""}</button>
+   <button class="mic" data-act="voice">${ico.mic}<span>${l.ask}</span></button>`}
+  renderOverlay();renderToast();renderFac();
+  if(opts.focus){const e=$(opts.focus);if(e)e.focus()}
+  else if(!opts.keep){const h=$("#h1");if(h){h.focus({preventScroll:true});window.scrollTo(0,0)}}
+}
+function stepper(n){const l=L();return `<ol class="stepper" aria-label="${l.stepL}">${l.step.map((s,i)=>`<li ${i+1===n?'aria-current="step"':""} class="${i+1<n?"done":""}">${N(i+1)} · ${s}</li>`).join("")}</ol>`}
+function statusChip(i){const l=L();return i.avail?`<span class="chip ok">${ico.ok} ${l.avail}</span>`:`<span class="chip no">${ico.x} ${l.unavail}</span>`}
+function itemCard(i,extra=""){const l=L();return `<article class="card" aria-label="${esc(nm(i))}"><div class="row"><span class="glyph" aria-hidden="true">${ico[i.cat]}</span><div class="grow"><h2>${esc(nm(i))}</h2><div class="meta">${l.lender}: ${pick(i.lender)} · ${pick(i.place)}</div></div></div><div class="row sp">${statusChip(i)}<span class="meta">${ico.clock} ${l.days(i.max)}</span></div>${extra}</article>`}
+function summary(i,d,cal){const l=L();return `<dl><div class="kv"><dt>${l.lender}</dt><dd>${pick(i.lender)}</dd></div><div class="kv"><dt>${l.pu}</dt><dd>${fmtDate(d.start,cal)} · ${fmtTime(d.time)}</dd></div><div class="kv"><dt>${l.rt}</dt><dd>${fmtDate(d.end,cal)}</dd></div><div class="kv"><dt>${l.pick}</dt><dd>${pick(i.place)}</dd></div></dl>`}
+
+const SCREENS={
+S0(){const l=L();return `<h1 id="h1" tabindex="-1">${l.s0h}</h1><p class="sub">${l.s0p}</p>
+ <div class="seg" role="group" aria-label="${l.login} / ${l.signup}" style="align-self:stretch"><button style="flex:1" data-act="tab" data-v="login" aria-pressed="${S.tab==="login"}">${l.login}</button><button style="flex:1" data-act="tab" data-v="signup" aria-pressed="${S.tab==="signup"}">${l.signup}</button></div>
+ <form data-form="login" novalidate class="card"><div><label for="em">${l.email}</label><input id="em" type="email" inputmode="email" autocomplete="off" placeholder="student@university.edu.sa" dir="ltr" ${S.emailErr?'aria-invalid="true" aria-describedby="emerr"':""}>${S.emailErr?`<div class="err" id="emerr" role="alert">${ico.warn.replace('width="22" height="22"','width="16" height="16"')}${l.emailErr}</div>`:""}</div>
+ <button class="btn" type="submit">${l.enter}</button><button class="btn sec" type="button" data-act="demo">${l.demo}</button></form>
+ <p class="note">${l.demoNote}</p>`},
+S1(){const l=L(),r=ranked();
+ return `<h1 id="h1" tabindex="-1">${l.s1h}</h1><p class="sub">${l.s1p}</p>
+ <form role="search" data-form="search"><label for="q">${l.search}</label><div class="row"><input id="q" type="search" value="${esc(S.q)}" placeholder="${esc(l.ph)}" autocomplete="off"><button class="btn" type="submit" aria-label="${l.go}">${ico.search}</button></div></form>
+ <div class="chips" role="group" aria-label="Filters"><button data-act="fAvail" aria-pressed="${S.fAvail}" id="fA">${l.fAvail}</button><button data-act="fCampus" aria-pressed="${S.fCampus}" id="fC">${l.fCampus}</button></div>
+ <div id="aibox"></div>
+ <div class="row sp"><span class="meta" id="count"></span><button class="link" data-act="clearF">${l.clear}</button></div>
+ <div id="list" style="display:flex;flex-direction:column;gap:12px"></div>`},
+S2(){const l=L(),i=byId(S.sel);if(!S.dates)S.dates=null;
+ const rec=S.recovery&&S.dates;const tooLong=rec&&diff(S.dates.start,S.dates.end)+1>i.max;
+ return `${stepper(1)}<h1 id="h1" tabindex="-1">${l.s2h}</h1><p class="sub">${l.s2p}</p>
+ <div class="card"><div class="row"><span class="glyph" aria-hidden="true">${ico[i.cat]}</span><div class="grow"><h2>${esc(nm(i))}</h2></div>${statusChip(i)}</div>
+ <dl><div class="kv"><dt>${l.lender}</dt><dd>${pick(i.lender)}</dd></div><div class="kv"><dt>${l.cond}</dt><dd>${pick(i.cond)}</dd></div><div class="kv"><dt>${l.pick}</dt><dd>${pick(i.place)}</dd></div><div class="kv"><dt>${l.max}</dt><dd>${l.days(i.max)}</dd></div></dl></div>
+ ${rec?`<div class="note" role="status"><b>${l.saved}</b><br>${fmtDate(S.dates.start,S.cal)} → ${fmtDate(S.dates.end,S.cal)} · ${fmtTime(S.dates.time)}</div>`:""}
+ ${tooLong?`<div class="err" role="alert">${l.tooLong(i.max)}</div>`:""}
+ ${!i.avail?`<p class="note">${l.unavNote}</p>`:""}
+ ${rec&&!tooLong?`<button class="btn" data-act="keepDates" ${i.avail?"":"disabled"}>${l.keepDates}</button><button class="btn sec" data-act="toDates">${l.changeDates}</button>`:`<button class="btn" data-act="toDates" ${i.avail?"":"disabled"}>${l.chooseDates}</button>`}
+ <button class="link" data-act="nav" data-v="S1">${l.back}</button>`},
+S3(){const l=L(),i=byId(S.sel);if(!S.dates)S.dates=defaultDates();const d=S.dates,e=S.errs;
+ const er=(k)=>e[k]?`<div class="err" id="e_${k}" role="alert">${ico.warn.replace('width="22" height="22"','width="16" height="16"')}<span>${k==="tm"?l.eTime:e[k]}</span></div>`:"";
+ return `${stepper(2)}<h1 id="h1" tabindex="-1">${l.s3h}</h1><p class="sub">${l.s3p}</p>
+ <div class="card"><h2>${esc(nm(i))}</h2><span class="meta">${l.max}: ${l.days(i.max)}</span></div>
+ <form data-form="dates" novalidate style="display:flex;flex-direction:column;gap:14px">
+ <div class="grid2"><div><label for="d1">${l.d1}</label><input id="d1" type="date" value="${d.start}" min="${todayISO()}" ${e.d1?'aria-invalid="true" aria-describedby="e_d1"':""}>${er("d1")}</div>
+ <div><label for="d2">${l.d2}</label><input id="d2" type="date" value="${d.end}" ${e.d2?'aria-invalid="true" aria-describedby="e_d2"':""}>${er("d2")}</div></div>
+ <div><label for="tm">${l.tm}</label><input id="tm" type="time" value="${d.time}" required ${e.tm?'aria-invalid="true" aria-describedby="e_tm"':""}>${er("tm")}</div>
+ <button class="btn" type="submit">${l.review}</button></form>
+ <button class="link" data-act="nav" data-v="S2">${l.toDetails}</button>`},
+S4(){const l=L(),i=byId(S.sel),d=S.dates;
+ return `${stepper(3)}<h1 id="h1" tabindex="-1">${l.s4h}</h1><p class="sub">${l.s4p}</p>
+ <div class="card"><div class="row"><span class="glyph" aria-hidden="true">${ico[i.cat]}</span><h2 class="grow">${esc(nm(i))}</h2></div>${summary(i,d,S.cal)}</div>
+ <div><div id="calL" class="small" style="font-weight:600;margin-bottom:6px">${l.cal}</div><div class="seg" role="group" aria-labelledby="calL" style="display:flex"><button style="flex:1" data-act="cal" data-v="greg" aria-pressed="${S.cal==="greg"}">${l.greg}</button><button style="flex:1" data-act="cal" data-v="hijri" aria-pressed="${S.cal==="hijri"}">${l.hijri}</button></div><p class="meta small" style="margin-top:6px">${l.calNote}</p></div>
+ <button class="btn" data-act="confirm">${l.confirm}</button><button class="link" data-act="toDates">${l.chg}</button><p class="note">${l.notApproved}</p>`},
+S5(){const l=L(),r=S.requests[S.requests.length-1],i=byId(r.item);
+ return `${stepper(4)}<h1 id="h1" tabindex="-1">${l.s5h}</h1><div class="note" role="status" style="border-color:var(--ok)">✓ ${l.sentBanner}</div>
+ <div class="card"><div class="row sp"><b>${r.id}</b><span class="chip pend">${l.waiting}</span></div><h2>${esc(nm(i))}</h2>${summary(i,r,S.cal)}</div>
+ <p class="meta small">${l.simNote}</p><button class="btn" data-act="nav" data-v="S6">${l.viewReq}</button><button class="btn sec" data-act="nav" data-v="S1">${l.another}</button>`},
+S6(){const l=L();
+ const cards=S.requests.slice().reverse().map(r=>{const i=byId(r.item);const p=r.status==="pending";
+  return `<article class="card" aria-label="${r.id}"><div class="row sp"><b>${r.id}</b>${p?`<span class="chip pend">${l.waiting}</span>`:`<span class="chip canc">${ico.x} ${l.cancelled}</span>`}</div><h2>${esc(nm(i))}</h2><div class="meta">${l.lender}: ${pick(i.lender)}</div>
+  <dl><div class="kv"><dt>${l.pu}</dt><dd>${fmtDate(r.start,S.cal)} · ${fmtTime(r.time)}</dd></div><div class="kv"><dt>${l.rt}</dt><dd>${fmtDate(r.end,S.cal)}</dd></div></dl>
+  ${p?`<button class="btn sec sm" data-act="askCancel" data-id="${r.id}" id="c_${r.id}">${l.cancelReq}</button>`:""}</article>`}).join("");
+ return `<h1 id="h1" tabindex="-1">${l.s6h}</h1><p class="sub">${l.s6p}</p>${cards||`<p class="note">${l.empty}</p>`}<p class="meta small">${l.hist}</p><button class="btn" data-act="nav" data-v="S1">${l.another}</button>`},
+E1(){const l=L(),i=byId(S.e1Item);
+ const alts=ITEMS.filter(x=>x.avail&&x.id!==i.id&&x.cat===i.cat).slice(0,3);
+ return `<h1 id="h1" tabindex="-1">${l.eh}</h1><div class="alert" role="alert">${ico.warn}<p>${l.eAlert}</p></div>
+ <div class="card dim"><span class="meta">${l.eSel}</span><h2>${esc(nm(i))}</h2><div class="meta">${fmtDate(S.dates.start,S.cal)} → ${fmtDate(S.dates.end,S.cal)} · ${fmtTime(S.dates.time)}</div></div>
+ <h2 id="altH">${l.alts}</h2><div style="display:flex;flex-direction:column;gap:12px" role="list" aria-labelledby="altH">${alts.map(a=>`<div role="listitem">${itemCard(a,`<button class="btn sm" data-act="pickAlt" data-id="${a.id}">${l.pickAlt}</button>`)}</div>`).join("")}</div>
+ <button class="btn sec" data-act="notify">${l.notify}</button><button class="link" data-act="nav" data-v="S1">${l.browse}</button>`}
+};
+
+function renderList(){
+  if(S.screen!=="S1")return;const l=L(),r=ranked();
+  const box=$("#aibox");
+  box.innerHTML=`<div class="ai-box"><div class="row sp"><span class="chip aitag" style="border:0;padding-inline:0">${ico.spark} ${l.ordered}</span><button class="switch" role="switch" aria-checked="${S.personalize}" data-act="pers" id="persBtn"><span>${S.personalize?l.on:l.off}</span><i aria-hidden="true"></i><span class="sr">${l.ordered}</span></button></div>
+   <p class="small">${!S.personalize?"":r.warm?l.warm(S.events):l.cold}</p>
+   ${S.personalize&&r.warm?`<button class="link small" data-act="why" aria-expanded="${S.showWhy}" id="whyBtn">${S.showWhy?l.whyHide:l.why}</button>`:""}
+   ${S.showWhy&&r.warm?`<p class="small" role="note">${l.whyTxt(CATNAME[topCat()][isAr()?1:0],S.events,S.user==="demo"?(isAr()?"هندسة الحاسب":"Computer Engineering"):"")}</p>`:""}</div>`;
+  $("#count").textContent=l.shown(r.list.length);
+  $("#list").innerHTML=r.list.length?r.list.map(i=>{const s=r.sug.has(i.id);
+    const extra=`<div class="row sp"><button class="btn sm" data-act="open" data-id="${i.id}" aria-label="${l.view}: ${esc(nm(i))}">${l.view}</button>${s?`<button class="link small" data-act="notRel" data-id="${i.id}" aria-label="${l.notRel}: ${esc(nm(i))}">${l.notRel}</button>`:""}</div>`;
+    return itemCard(i,extra).replace('<article class="card"',`<article class="card${s?" sug":""}${i.avail?"":" dim"}"`).replace('<div class="row"><span class="glyph"',s?`<div><span class="chip aitag">${ico.spark} ${l.sugg}</span></div><div class="row"><span class="glyph"`:'<div class="row"><span class="glyph"')}).join(""):`<p class="note">${l.none}</p>`;
+}
+const SCREENS_S1=SCREENS.S1;SCREENS.S1=function(){const h=SCREENS_S1();setTimeout(renderList,0);return h};
+
+/* ---------- overlay: cancel dialog + assistant ---------- */
+function renderOverlay(){
+  const l=L(),o=$("#overlay");let h="";
+  if(S.dlg){const r=S.requests.find(x=>x.id===S.dlg),i=byId(r.item);
+   h=`<div class="scrim" data-act="dlgClose"><div class="sheet center" role="alertdialog" aria-modal="true" aria-labelledby="dH" aria-describedby="dP" data-stop><h2 id="dH">${l.dlgH}</h2><p id="dP">${r.id} · ${esc(nm(i))}<br><span class="meta">${l.dlgP}</span></p><button class="btn sec" data-act="dlgClose" id="dKeep">${l.keep}</button><button class="btn danger" data-act="dlgYes">${l.yesCancel}</button></div></div>`}
+  else if(S.voice){
+   h=`<div class="scrim" data-act="vClose"><div class="sheet" role="dialog" aria-labelledby="vH" data-stop>
+   <div class="row sp"><h2 id="vH" tabindex="-1">${l.vH}</h2><button class="btn sec sm" data-act="vClose">${l.vClose}</button></div><p class="sub small">${l.vSub}</p>
+   <div class="row"><button class="mic-big" data-act="vMic" aria-pressed="${S.listening}" aria-label="${S.listening?l.vStop:l.vStart}">${ico.mic}</button><div class="grow"><div id="vState" role="status" class="small" style="font-weight:600">${S.listening?l.vListening:l.vStart}</div><button class="switch small" role="switch" aria-checked="${S.micOn}" data-act="vMicSw"><span>${l.vMic}: ${S.micOn?l.on:l.off}</span><i aria-hidden="true"></i></button></div></div>
+   <div class="log" role="log" aria-live="polite" id="vLog">${S.log.map(m=>`<div class="msg ${m.role}">${m.html}</div>`).join("")}</div>
+   <form data-form="say"><label for="say">${l.vType}</label><div class="row"><input id="say" type="text" autocomplete="off"><button class="btn" type="submit">${l.vSend}</button></div></form>
+   <details><summary>${l.vExamples}</summary><ul class="small">${l.vEx.map(x=>`<li>${x}</li>`).join("")}</ul></details></div></div>`}
+  o.innerHTML=h;
+  const lg=$("#vLog");if(lg)lg.scrollTop=lg.scrollHeight;
+}
+function toast(msg,undo){S.toast={msg,undo};renderToast();clearTimeout(toast.t);toast.t=setTimeout(()=>{S.toast=null;renderToast()},8000)}
+function renderToast(){const t=$("#toast");t.innerHTML=S.toast?`<div><span>${esc(S.toast.msg)}</span>${S.toast.undo?`<button data-act="tundo">${L().undo}</button>`:""}</div>`:""}
+
+/* ---------- conversational layer: intent parser ---------- */
+function norm(s){return String(s).toLowerCase().replace(/[ً-ْـ]/g,"").replace(/[أإآ]/g,"ا").replace(/ى/g,"ي").replace(/ة/g,"ه")
+  .replace(/[٠-٩]/g,d=>"٠١٢٣٤٥٦٧٨٩".indexOf(d)).replace(/[^\p{L}\p{N}\s]/gu," ").replace(/\s+/g," ").trim()}
+const PHR=[
+ {k:"cancel",en:"cancel my request",ar:"الغ طلبي"},{k:"cancel",en:"i don't need it anymore",ar:"ما احتاجه"},
+ {k:"reqs",en:"show my requests",ar:"اعرض طلباتي"},{k:"home",en:"go home",ar:"ارجع للرئيسيه"},
+ {k:"find:Raspberry Pi",en:"find raspberry pi",ar:"ابحث عن راسبيري باي"},{k:"find:Arduino",en:"find arduino",ar:"ابحث عن اردوينو"}
+];
+function lev(a,b){const m=[];for(let i=0;i<=a.length;i++){m[i]=[i];}for(let j=0;j<=b.length;j++)m[0][j]=j;
+ for(let i=1;i<=a.length;i++)for(let j=1;j<=b.length;j++)m[i][j]=Math.min(m[i-1][j]+1,m[i][j-1]+1,m[i-1][j-1]+(a[i-1]===b[j-1]?0:1));return m[a.length][b.length]}
+function interpret(text){
+  const t=norm(text);
+  if(/\b(cancel|withdraw|dont need|do not need|no longer need|remove my request)\b/.test(t)||/(الغ|لا احتاج|ما احتاج|ما عاد احتاج|مب محتاج|سحب)/.test(t))return {k:"cancel",conf:1};
+  if(/(my requests|show requests|request status|طلباتي|طلبي|الطلبات|حاله الطلب)/.test(t))return {k:"reqs",conf:1};
+  if(/\b(home|go back|main page|browse)\b/.test(t)||/(الرئيسيه|تصفح|رجوع|ارجع)/.test(t))return {k:"home",conf:1};
+  for(const [term,ws] of TERMS){if(ws.some(w=>new RegExp(`(^| )${norm(w)}( |$)`).test(t)||(norm(w).length>3&&t.includes(norm(w)))))return {k:"find:"+term,conf:1}}
+  let best=null,bs=0;
+  for(const p of PHR){for(const s of [norm(p.en),norm(p.ar)]){const r=1-lev(t,s)/Math.max(t.length,s.length);if(r>bs){bs=r;best=p}}}
+  if(best&&bs>=0.55)return {k:best.k,conf:bs,guess:true,label:isAr()?best.ar:best.en};
+  return {k:"none",conf:0};
+}
+const labelOf=k=>{const l=L();const m={cancel:isAr()?"ألغِ طلبي":"Cancel my request",reqs:isAr()?"اعرض طلباتي":"Show my requests",home:isAr()?"ارجع للرئيسية":"Go home"};return m[k]||(k.startsWith("find:")?(isAr()?"ابحث عن ":"Find ")+k.slice(5):k)};
+function say(role,html){S.log.push({role,html});if(S.voice)renderOverlay()}
+function ask(q,onYes,onNo){S.pending={onYes,onNo};say("bot",`${esc(q)}<div class="row"><button class="btn sm" data-act="vYes">${L().yes}</button><button class="btn sec sm" data-act="vNo">${L().no}</button></div>`)}
+function answer(yes){const p=S.pending;if(!p)return;S.pending=null;(yes?p.onYes:p.onNo)()}
+function yesNo(t){const n=norm(t);if(/^(yes|yeah|yep|ok|okay|sure|correct|right|نعم|ايه|ايوه|اي|صح|تمام|اكيد)$/.test(n))return true;if(/^(no|nope|nah|لا|لاء|ابدا|مو)$/.test(n))return false;return null}
+function utter(text,conf){
+  text=(text||"").trim();if(!text)return;
+  say("me",esc(text));
+  if(S.pending){const y=yesNo(text);if(y!==null)return answer(y);S.pending=null}
+  if(conf!=null&&conf<0.5)return ask(L().vHeard(text),()=>run(text),()=>say("bot",L().vAgain));
+  run(text);
+}
+function run(text){
+  const r=interpret(text),l=L();
+  if(r.k==="none")return say("bot",l.vNone);
+  if(r.guess)return ask(l.vDid(r.label),()=>exec(r.k),()=>say("bot",l.vAgain));
+  exec(r.k);
+}
+function exec(k){
+  const l=L();
+  if(k==="cancel"){const p=S.requests.filter(r=>r.status==="pending");
+    if(!p.length)return say("bot",l.vNoPend);
+    if(p.length>1)return say("bot",`${l.vWhich}<div class="row">${p.map(r=>`<button class="btn sec sm" data-act="vPick" data-id="${r.id}">${r.id}</button>`).join("")}</div>`);
+    return confirmCancel(p[0])}
+  if(k==="reqs"){go("S6");return say("bot",l.vOpened)}
+  if(k==="home"){go("S1");return say("bot",l.vHome)}
+  if(k.startsWith("find:")){const term=k.slice(5);S.q=term;recordSearch(term);S.screen="S1";render({keep:true});return say("bot",l.vFound(ranked().list.length,term))}
+}
+function confirmCancel(r){ask(L().vCQ(r.id,nm(byId(r.item))),()=>{doCancel(r.id);say("bot",`${esc(L().vDone(r.id))}<div class="row"><button class="btn sec sm" data-act="vUndo" data-id="${r.id}">${L().undo}</button></div>`)},()=>say("bot",L().vKept))}
+function doCancel(id){const r=S.requests.find(x=>x.id===id);if(!r)return;r.status="cancelled";go("S6",{keep:true});toast(L().toastCancel(id),id)}
+function undoCancel(id){const r=S.requests.find(x=>x.id===id);if(r){r.status="pending";render({keep:true});toast(L().undone)}}
+
+/* ---------- voice input ---------- */
+let dict=null,rec=null;
+try{window.claude?.use?.("dictation").then(d=>{if(!d)return;dict=d;d.onFinal(({text})=>utter(text,null));d.onState(({state})=>{S.listening=state==="listening";if(S.voice)renderOverlay()})}).catch(()=>{})}catch(e){}
+async function startListen(){
+  const l=L();
+  if(!S.micOn)return say("bot",l.micOff);
+  if(S.listening){if(dict)try{await dict.stop()}catch(e){}if(rec)try{rec.stop()}catch(e){}S.listening=false;return renderOverlay()}
+  if(dict){try{await dict.start()}catch(e){say("bot",e&&e.code==="not_granted"?l.micDenied:l.micFail)}return}
+  const SR=window.SpeechRecognition||window.webkitSpeechRecognition;
+  if(!SR)return say("bot",l.noVoice);
+  try{rec=new SR();rec.lang=isAr()?"ar-SA":"en-US";rec.interimResults=false;rec.maxAlternatives=1;
+   rec.onresult=e=>{const r=e.results[0][0];utter(r.transcript,r.confidence)};
+   rec.onerror=e=>{S.listening=false;say("bot",e.error==="no-speech"?l.noSpeech:(e.error==="not-allowed"||e.error==="service-not-allowed")?l.micDenied:l.micFail)};
+   rec.onend=()=>{S.listening=false;if(S.voice)renderOverlay()};
+   rec.start();S.listening=true;renderOverlay()}catch(e){S.listening=false;say("bot",l.micFail)}
+}
+
+/* ---------- facilitator panel ---------- */
+function renderFac(){
+  const f=$("#fac");f.hidden=location.hash!=="#facilitator";if(f.hidden)return;
+  f.innerHTML=`<div class="card"><h2>Facilitator controls (not for participants)</h2>
+  <label style="display:flex;gap:8px;align-items:center;font-weight:500"><input type="checkbox" id="armE1" ${S.armE1?"checked":""} style="width:22px;height:22px"> Arm error E1: the next “Confirm and send request” reports the tool as taken (use before T2)</label>
+  <div class="row" style="flex-wrap:wrap"><button class="btn sec sm" data-act="fReset">Reset app (start of T1)</button><button class="btn sec sm" data-act="fT3">Load T3 start (1 pending request, demo user)</button></div>
+  <p class="meta small">Open this page with #facilitator at the end of the link to see these controls. Adaptive layer events so far: ${S.events}.</p></div>`;
+}
+addEventListener("hashchange",renderFac);
+
+/* ---------- events ---------- */
+document.addEventListener("click",e=>{
+  if(e.target.closest("[data-stop]")&&!e.target.closest("[data-act]"))return;
+  const b=e.target.closest("[data-act]");if(!b)return;
+  if(b.classList.contains("scrim")&&e.target!==b)return;
+  const a=b.dataset.act,v=b.dataset.v,id=b.dataset.id;
+  switch(a){
+   case "lang":LANG=v;render({keep:true});break;
+   case "tab":S.tab=v;render({keep:true});break;
+   case "demo":seedDemo();go("S1");break;
+   case "signout":S=fresh();go("S0");break;
+   case "nav":go(v);break;
+   case "fAvail":S.fAvail=!S.fAvail;render({focus:"#fA"});break;
+   case "fCampus":S.fCampus=!S.fCampus;render({focus:"#fC"});break;
+   case "clearF":S.fAvail=S.fCampus=false;S.q="";render({focus:"#q"});break;
+   case "pers":S.personalize=!S.personalize;renderList();$("#persBtn").focus();break;
+   case "why":S.showWhy=!S.showWhy;renderList();$("#whyBtn").focus();break;
+   case "notRel":{const i=byId(+id);S.dismissed.add(i.id);learn(i.cat,-2);renderList();toast(L().gotIt,"nr"+i.id);break}
+   case "open":{const i=byId(+id);S.sel=i.id;learn(i.cat,1);S.recovery=false;go("S2");break}
+   case "toDates":go("S3");break;
+   case "keepDates":go("S4");break;
+   case "cal":S.cal=v;render({keep:true,focus:`[data-v="${v}"]`});break;
+   case "confirm":
+     if(S.armE1){S.armE1=false;S.e1Item=S.sel;go("E1")}
+     else{S.seq++;const r={id:"CL-"+String(S.seq).padStart(3,"0"),item:S.sel,start:S.dates.start,end:S.dates.end,time:S.dates.time,status:"pending"};S.requests.push(r);learn(byId(S.sel).cat,3);S.dates=null;S.recovery=false;go("S5")}
+     break;
+   case "pickAlt":S.sel=+id;S.recovery=true;learn(byId(S.sel).cat,1);go("S2");break;
+   case "notify":toast(L().notifyT);break;
+   case "askCancel":S.dlg=id;renderOverlay();setTimeout(()=>$("#dKeep")?.focus(),0);break;
+   case "dlgClose":{const i=S.dlg;S.dlg=null;renderOverlay();$("#c_"+i)?.focus();break}
+   case "dlgYes":{const i=S.dlg;S.dlg=null;doCancel(i);break}
+   case "tundo":{const u=S.toast&&S.toast.undo;S.toast=null;if(u&&u.startsWith("nr")){const i=byId(+u.slice(2));S.dismissed.delete(i.id);learn(i.cat,2);renderList();toast(L().undone)}else if(u)undoCancel(u);else renderToast();break}
+   case "voice":S.voice=true;if(!S.log.length)S.log.push({role:"bot",html:esc(L().vHello)});renderOverlay();setTimeout(()=>$(window.matchMedia("(pointer: coarse)").matches?"#vH":"#say")?.focus(),0);break;
+   case "vClose":S.voice=false;if(S.listening&&rec)try{rec.stop()}catch(e){}renderOverlay();break;
+   case "vMic":startListen();break;
+   case "vMicSw":S.micOn=!S.micOn;if(!S.micOn&&rec)try{rec.stop()}catch(e){}renderOverlay();break;
+   case "vYes":answer(true);break;case "vNo":answer(false);break;
+   case "vPick":confirmCancel(S.requests.find(r=>r.id===id));break;
+   case "vUndo":undoCancel(id);say("bot",esc(L().undone));break;
+   case "fReset":{const e=S.armE1;S=fresh();S.armE1=e;go("S0");break}
+   case "fT3":{S=fresh();seedDemo();S.seq=1;S.requests=[{id:"CL-001",item:3,start:addDays(todayISO(),3),end:addDays(todayISO(),6),time:"12:30",status:"pending"}];go("S1");break}
+  }
+});
+document.addEventListener("submit",e=>{
+  e.preventDefault();const f=e.target.dataset.form;
+  if(f==="login"){const v=$("#em").value.trim();if(!v){S.emailErr=true;render({focus:"#em"});return}
+    S.emailErr=false;if(S.tab==="signup"){S.user="new"}else seedDemo();go("S1")}
+  if(f==="search"){S.q=$("#q").value.trim();if(S.q)recordSearch(S.q);renderList();$("#q").focus()}
+  if(f==="dates"){const d=S.dates,i=byId(S.sel),l=L(),er={};
+    if(!d.start||!d.end)er.d1=l.eBoth;
+    else if(d.start<todayISO())er.d1=l.ePast;
+    else if(d.end<d.start)er.d2=l.eOrder;
+    else if(diff(d.start,d.end)+1>i.max)er.d2=l.eLong(i.max,fmtDate(addDays(d.start,i.max-1),"greg"));
+    if(!d.time)er.tm=true;
+    if(Object.keys(er).length){S.errs=er;render({focus:er.d1?"#d1":er.d2?"#d2":"#tm"});return}
+    go("S4")}
+  if(f==="say"){const x=$("#say");const t=x.value;x.value="";utter(t,null);$("#say")?.focus()}
+});
+document.addEventListener("change",e=>{
+  if(e.target.id==="d1")S.dates.start=e.target.value;
+  if(e.target.id==="d2")S.dates.end=e.target.value;
+  if(e.target.id==="tm")S.dates.time=e.target.value;
+  if(e.target.id==="armE1")S.armE1=e.target.checked;
+});
+document.addEventListener("input",e=>{if(e.target.id==="q"&&S.screen==="S1"){S.q=e.target.value;renderList()}});
+document.addEventListener("keydown",e=>{
+  if(e.key==="Escape"){if(S.dlg){S.dlg=null;renderOverlay()}else if(S.voice){S.voice=false;renderOverlay()}}
+  if(e.ctrlKey&&e.altKey&&e.key.toLowerCase()==="f"){location.hash=location.hash==="#facilitator"?"":"facilitator"}
+});
+const viewport=window.visualViewport;
+if(viewport){
+  const syncViewport=()=>{
+    document.documentElement.style.setProperty("--viewport-height",viewport.height+"px");
+    document.documentElement.style.setProperty("--viewport-top",viewport.offsetTop+"px");
+  };
+  viewport.addEventListener("resize",syncViewport);
+  viewport.addEventListener("scroll",syncViewport);
+  syncViewport();
+}
+window.__CL={get S(){return S},go,render,seedDemo,utter,setLang(x){LANG=x;render()},doCancel,interpret};
+render();
+</script>
+
+</body></html>
